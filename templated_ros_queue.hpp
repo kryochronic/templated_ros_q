@@ -26,7 +26,7 @@
 #include <boost/bind.hpp>
 #include <thread>
 using namespace std;
-template <typename T> class TempaltedROSQueue //: public boost::enable_shared_from_this<TempaltedROSQueue<T>>
+template <typename T> class TemplatedROSQueue //: public boost::enable_shared_from_this<TemplatedROSQueue<T>>
 {
 private:
     std::string topic_;
@@ -60,8 +60,8 @@ private:
         ros::init(argc, argv, APP_LOGGER_NAME);
         
         ros_topic_pub_ = ros_nh.advertise<T>(topic_, q_size_);
-        ros_topic_sub_ = ros_nh.subscribe(topic_, 1,&TempaltedROSQueue<T>::callback_fn,this);
-        callback_thread_h_ = std::thread(&TempaltedROSQueue<T>::callback_thread,this);
+        ros_topic_sub_ = ros_nh.subscribe(topic_, 1,&TemplatedROSQueue<T>::callback_fn,this);
+        callback_thread_h_ = std::thread(&TemplatedROSQueue<T>::callback_thread,this);
     }
 
     void callback_fn(const CSPTR_t p_msg_rx)
@@ -76,18 +76,18 @@ private:
     }
 
 public:
-    ~TempaltedROSQueue()
+    ~TemplatedROSQueue()
     {
         
     }
     
-    TempaltedROSQueue(std::string topic)
+    TemplatedROSQueue(std::string topic)
         : topic_(topic)
         , q_size_(100)
     {
         main_init(0,0);
     }
-    TempaltedROSQueue(std::string topic,int n)
+    TemplatedROSQueue(std::string topic,int n)
         : topic_(topic)
         , q_size_(n)
     {
@@ -95,14 +95,14 @@ public:
     }
 
 
-    TempaltedROSQueue(std::string topic,int argc, char **argv)
+    TemplatedROSQueue(std::string topic,int argc, char **argv)
         : topic_(topic)
         , q_size_(100)
     {
         main_init(argc,argv);
     }
 
-    TempaltedROSQueue(std::string topic,int n,int argc, char **argv)
+    TemplatedROSQueue(std::string topic,int n,int argc, char **argv)
         : topic_(topic)
         , q_size_(n)
     {
@@ -116,7 +116,7 @@ public:
         return status;
     }
     
-    // boost::shared_ptr<TempaltedROSQueue<T>> get_shared_ptr(void)
+    // boost::shared_ptr<TemplatedROSQueue<T>> get_shared_ptr(void)
     // {
     //     return this->shared_from_this();
     // }
