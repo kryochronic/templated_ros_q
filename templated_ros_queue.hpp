@@ -53,15 +53,17 @@ private:
             return true;
         }
     }
-    
-    void main_init(int argc, char **argv)
+    void ros_handles_init(void)
     {
         ros::NodeHandle ros_nh;
-        ros::init(argc, argv, APP_LOGGER_NAME);
-        
         ros_topic_pub_ = ros_nh.advertise<T>(topic_, q_size_);
         ros_topic_sub_ = ros_nh.subscribe(topic_, 1,&TemplatedROSQueue<T>::callback_fn,this);
         callback_thread_h_ = std::thread(&TemplatedROSQueue<T>::callback_thread,this);
+    }
+    void ros_main_init(int argc, char **argv)
+    {
+        
+        ros::init(argc, argv, APP_LOGGER_NAME);
     }
 
     void callback_fn(const CSPTR_t p_msg_rx)
@@ -85,13 +87,15 @@ public:
         : topic_(topic)
         , q_size_(100)
     {
-        main_init(0,0);
+        ros_main_init(0,0);
+        ros_handles_init();
     }
     TemplatedROSQueue(std::string topic,int n)
         : topic_(topic)
         , q_size_(n)
     {
-        main_init(0,0);
+        ros_main_init(0,0);
+        ros_handles_init();
     }
 
 
@@ -99,21 +103,28 @@ public:
         : topic_(topic)
         , q_size_(100)
     {
-        main_init(argc,argv);
+        ros_main_init(argc,argv);
+        ros_handles_init();
     }
 
     TemplatedROSQueue(std::string topic,int n,int argc, char **argv)
         : topic_(topic)
         , q_size_(n)
     {
-        main_init(argc,argv);
+        ros_main_init(argc,argv);
+        ros_handles_init();
     }
-    bool wait_pop(T& msg, uint32_t timeout_ms)
+    bool recv(T& msg, uint32_t timeout_ms)
     {
         bool status = pend_on_message_q(timeout_ms);
         if(status)
             msg = *rx_msg_;
         return status;
+    }
+    
+    void send(T& msg)
+    {
+        ros_topic_pub_.publish(msg);
     }
     
     // boost::shared_ptr<TemplatedROSQueue<T>> get_shared_ptr(void)
