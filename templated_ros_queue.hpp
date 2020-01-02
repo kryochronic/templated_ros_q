@@ -87,14 +87,12 @@ public:
         : topic_(topic)
         , q_size_(100)
     {
-        ros_main_init(0,0);
         ros_handles_init();
     }
     TemplatedROSQueue(std::string topic,int n)
         : topic_(topic)
         , q_size_(n)
     {
-        ros_main_init(0,0);
         ros_handles_init();
     }
 
