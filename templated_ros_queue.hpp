@@ -36,7 +36,8 @@ private:
     ros::Subscriber ros_topic_sub_;
     std::thread callback_thread_h_;
     typedef boost::shared_ptr<T const> CSPTR_t;
-    CSPTR_t rx_msg_;
+    typedef boost::shared_ptr<T> SPTR_t;
+    T rx_msg_;
     std::condition_variable cv_;
     
     bool pend_on_message_q(uint32_t timeout_ms)
@@ -58,7 +59,7 @@ private:
         ros::NodeHandle ros_nh;
         ros_topic_pub_ = ros_nh.advertise<T>(topic_, q_size_);
         ros_topic_sub_ = ros_nh.subscribe(topic_, 1,&TemplatedROSQueue<T>::callback_fn,this);
-        callback_thread_h_ = std::thread(&TemplatedROSQueue<T>::callback_thread,this);
+        
     }
     void ros_main_init(int argc, char **argv)
     {
@@ -68,13 +69,8 @@ private:
 
     void callback_fn(const CSPTR_t p_msg_rx)
     {
-        rx_msg_ = p_msg_rx;
+        rx_msg_ = *p_msg_rx;
         cv_.notify_all();
-    }
-
-    void callback_thread(void)
-    {
-        ros::spin();
     }
 
 public:
@@ -116,7 +112,7 @@ public:
     {
         bool status = pend_on_message_q(timeout_ms);
         if(status)
-            msg = *rx_msg_;
+            msg = rx_msg_;
         return status;
     }
     
